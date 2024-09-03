@@ -10,8 +10,8 @@ import (
 
 type MetaData struct {
 	Title    string
-	Artist   string
 	Album    string
+	Artist   string
 	Year     int
 	Track    int
 	Genre    string
@@ -54,9 +54,9 @@ func (e *Extractor) Extract(filePath string) (*MetaData, error) {
 	return &MetaData{
 		Title:    file.Title(),
 		Artist:   file.Artist(),
-		Album:    file.Album(),
 		Year:     file.Year(),
 		Track:    file.Track(),
+		Album: file.Album(),
 		Genre:    file.Genre(),
 		Duration: file.Length(),
 		FilePath: filePath,

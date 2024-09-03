@@ -27,8 +27,8 @@ func New(musicDir string) (*Player, error) {
 		song := Song{
 			Title:    meta.Title,
 			Artist:   meta.Artist,
-			Album:    meta.Album,
 			Year:     meta.Year,
+			Album:     meta.Album,
 			Track:    meta.Track,
 			Genre:    meta.Genre,
 			Duration: meta.Duration,
@@ -91,13 +91,17 @@ func (p *Player) Next() {
 		return
 	}
 	p.currentIndex = (p.currentIndex + 1) % len(p.playlist)
+	p.Play()
 }
-
+func (p *Player)SetCurrentIndex(index int){
+	p.currentIndex= index
+}
 func (p *Player) Prev() {
 	if len(p.playlist) == 0 {
 		return
 	}
 	p.currentIndex = (p.currentIndex - 1 + len(p.playlist)) % len(p.playlist)
+	p.Play()
 }
 
 func (p *Player) IsPlaying() bool {

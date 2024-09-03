@@ -63,11 +63,21 @@ func (ui *MusicPlayerUI) setupUI() {
 func (ui *MusicPlayerUI) Run() error {
 	ui.setupUI()
 	ui.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEnter:
+			index := ui.playlist.GetCurrentItem()
+			ui.player.Stop()
+			ui.player.SetCurrentIndex(index)
+			ui.player.Play()
+			ui.statusBar.SetText("Playing")
+			ui.updateNowPlaying()
+		}
 		switch event.Rune() {
+
 		case 'q':
 			ui.player.Stop()
 			ui.app.Stop()
-			
+
 		case 'p':
 			if ui.player.IsPlaying() {
 				ui.player.Pause()
@@ -84,9 +94,23 @@ func (ui *MusicPlayerUI) Run() error {
 			ui.player.Prev()
 			ui.updateNowPlaying()
 		}
-	
+
 		return event
 	})
+
+	// update every ui every second
+	// go func() {
+	// 	for {
+	// 		time.Sleep(time.Second)
+	// 		ui.app.QueueUpdateDraw(func() {
+	// 			ui.updateNowPlaying()
+	// 		})
+	// 	}
+	// }()
+
+	defer func() {
+		ui.player.Stop()
+	}()
 	return ui.app.Run()
 }
 
