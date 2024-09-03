@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/mnsdojo/goplay/internal/player"
+	"github.com/mnsdojo/goplay/internal/ui"
 )
 
 func main() {
@@ -14,12 +14,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error initializing player :%v\n", err)
 	}
-	playlist := musicPlayer.GetPlaylist()
-
-	fmt.Printf("total songs : %d\n", len(playlist))
-	for _, song := range playlist {
-		fmt.Printf("Title :%s\n ", song.Title)
-		fmt.Printf("Artist :%s\n ", song.Artist)
-
+	playerUi := ui.New(musicPlayer)
+	if err := playerUi.Run(); err != nil {
+		log.Fatalf("Error running UI: %v\n", err)
 	}
+
 }

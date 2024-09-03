@@ -2,6 +2,7 @@ package player
 
 import (
 	"fmt"
+	"os/exec"
 
 	"github.com/mnsdojo/goplay/internal/metadata"
 )
@@ -10,6 +11,7 @@ type Player struct {
 	playlist     []Song
 	currentIndex int
 	isPlaying    bool
+	cmd          *exec.Cmd
 }
 
 func New(musicDir string) (*Player, error) {
@@ -52,11 +54,37 @@ func (p *Player) CurrentSong() Song {
 }
 
 func (p *Player) Play() {
+	if len(p.playlist) == 0 {
+		return
+	}
+	// kill the process
+	if p.cmd != nil {
+		p.cmd.Process.Kill()
+	}
+	p.cmd = exec.Command("mpv", "--no-video", "--no-terminal", p.playlist[p.currentIndex].FilePath)
+	err := p.cmd.Start()
+	if err != nil {
+		fmt.Printf("Error starting mpv %v\n", err)
+		return
+	}
 	p.isPlaying = true
+
+}
+
+func (p *Player) Stop() {
+	if p.cmd != nil && p.cmd.Process != nil {
+		p.cmd.Process.Kill()
+		p.cmd.Wait()
+		p.cmd = nil
+	}
+	p.isPlaying = false
 }
 
 func (p *Player) Pause() {
-	p.isPlaying = false
+	if p.cmd != nil && p.cmd.Process != nil {
+		exec.Command("pkill", "-STOP", "mpv").Run()
+		p.isPlaying = false
+	}
 }
 func (p *Player) Next() {
 	if len(p.playlist) == 0 {
