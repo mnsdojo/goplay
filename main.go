@@ -1,16 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
-	"github.com/rivo/tview"
+	"github.com/mnsdojo/goplay/internal/player"
 )
 
 func main() {
-	app := tview.NewApplication()
+	musicDir := "../Music"
 
+	musicPlayer, err := player.New(musicDir)
+	if err != nil {
+		log.Fatalf("Error initializing player :%v\n", err)
+	}
+	playlist := musicPlayer.GetPlaylist()
 
-	if err := app.SetRoot(layout.GetGrid(), true).EnableMouse(true).Run(); err != nil {
-			log.Fatalf("Error running application: %v", err)
-		}
+	fmt.Printf("total songs : %d\n", len(playlist))
+	for _, song := range playlist {
+		fmt.Printf("Title :%s\n ", song.Title)
+		fmt.Printf("Artist :%s\n ", song.Artist)
+
+	}
 }
