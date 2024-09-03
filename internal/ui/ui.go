@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/mnsdojo/goplay/internal/player"
@@ -74,23 +75,31 @@ func (ui *MusicPlayerUI) Run() error {
 		}
 		switch event.Rune() {
 
+		case 'j':
+			ui.playlist.SetCurrentItem((ui.playlist.GetCurrentItem() + 1) % ui.playlist.GetItemCount())
+		case 'k':
+			ui.playlist.SetCurrentItem((ui.playlist.GetCurrentItem() - 1 + ui.playlist.GetItemCount()) % ui.playlist.GetItemCount())
 		case 'q':
-			ui.player.Stop()
+			ui.player.Cleanup()
 			ui.app.Stop()
 
 		case 'p':
 			if ui.player.IsPlaying() {
 				ui.player.Pause()
 				ui.statusBar.SetText("Paused")
+			} else if ui.player.IsPaused() {
+				ui.statusBar.SetText("Playing")
 			} else {
 				ui.player.Play()
 				ui.statusBar.SetText("Playing")
 			}
 			ui.updateNowPlaying()
 		case 'n':
+			ui.playlist.SetCurrentItem((ui.playlist.GetCurrentItem() + 1) % ui.playlist.GetItemCount())
 			ui.player.Next()
 			ui.updateNowPlaying()
 		case 'b':
+			ui.playlist.SetCurrentItem((ui.playlist.GetCurrentItem() - 1 + ui.playlist.GetItemCount()) % ui.playlist.GetItemCount())
 			ui.player.Prev()
 			ui.updateNowPlaying()
 		}
@@ -99,18 +108,16 @@ func (ui *MusicPlayerUI) Run() error {
 	})
 
 	// update every ui every second
-	// go func() {
-	// 	for {
-	// 		time.Sleep(time.Second)
-	// 		ui.app.QueueUpdateDraw(func() {
-	// 			ui.updateNowPlaying()
-	// 		})
-	// 	}
-	// }()
-
-	defer func() {
-		ui.player.Stop()
+	go func() {
+		for {
+			time.Sleep(time.Second)
+			ui.app.QueueUpdateDraw(func() {
+				ui.updateNowPlaying()
+			})
+		}
 	}()
+
+	defer ui.player.Cleanup()
 	return ui.app.Run()
 }
 
